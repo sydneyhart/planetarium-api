@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.sample
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.sqlite3-*
+media/
+staticfiles/
+.ruff_cache/
+.pytest_cache/
+.idea/
+.vscode/
+.DS_Store
+.coverage
