@@ -9,8 +9,31 @@ class AstronomyShowAdmin(admin.ModelAdmin):
     search_fields = ["title"]
     filter_horizontal = ["themes"]
 
+    def get_readonly_fields(self, request, obj=None):
+        return ["duration"] if obj and obj.sessions.exists() else []
 
-admin.site.register([AstronomyTheme, PlanetariumDome, ShowSession])
+
+admin.site.register(AstronomyTheme)
+
+
+@admin.register(PlanetariumDome)
+class DomeAdmin(admin.ModelAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        return ["rows", "seats_in_row"] if obj and obj.sessions.exists() else []
+
+
+@admin.register(ShowSession)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ["astronomy_show", "planetarium_dome", "show_time", "price"]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class TicketInline(admin.TabularInline):

@@ -43,6 +43,14 @@ class AstronomyShowSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Duration cannot change once sessions are scheduled.")
         return value
 
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        locked = AstronomyShow.objects.select_for_update().get(pk=instance.pk)
+        self.instance = locked
+        if "duration" in validated_data:
+            self.validate_duration(validated_data["duration"])
+        return super().update(locked, validated_data)
+
     def validate_image(self, image):
         if image and image.size > 5 * 1024 * 1024:
             raise serializers.ValidationError("Maximum image size is 5 MiB.")
@@ -70,6 +78,13 @@ class PlanetariumDomeSerializer(serializers.ModelSerializer):
                     "Dome seating cannot change once sessions are scheduled."
                 )
         return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        locked = PlanetariumDome.objects.select_for_update().get(pk=instance.pk)
+        self.instance = locked
+        self.validate(validated_data)
+        return super().update(locked, validated_data)
 
 
 class ShowSessionSerializer(serializers.ModelSerializer):
@@ -129,6 +144,7 @@ class ShowSessionSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         PlanetariumDome.objects.select_for_update().get(pk=validated_data["planetarium_dome"].pk)
+        AstronomyShow.objects.select_for_update().get(pk=validated_data["astronomy_show"].pk)
         self.check_overlap(
             validated_data["show_time"],
             validated_data["astronomy_show"],
