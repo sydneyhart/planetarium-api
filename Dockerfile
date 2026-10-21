@@ -1,6 +1,7 @@
 FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    RUFF_CACHE_DIR=/tmp/ruff-cache \
     MEDIA_ROOT=/vol/web/media \
     STATIC_ROOT=/vol/web/static
 WORKDIR /app
